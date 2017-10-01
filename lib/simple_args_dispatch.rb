@@ -1,4 +1,5 @@
 require "simple_args_dispatch/version"
+require 'simple_speaker'
 
 @speaker = SimpleSpeaker.new
 LINE_SEPARATOR = '---------------------------------------------------------'
