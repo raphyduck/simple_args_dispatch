@@ -44,7 +44,7 @@ module SimpleArgsDispatch
     params = Hash[req_params.map { |k, _| [k, args[k.to_s] || template_args[k.to_s]] }].select { |_, v| !v.nil? }
     params.empty? ? dameth.call : dameth.call(params)
   rescue => e
-    speaker.tell_error(e, "Dispatcher.launch")
+    speaker.tell_error(e, "SimpleAgrsDispatch.launch")
   end
 
   def self.new_line
