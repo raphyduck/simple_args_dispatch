@@ -2,7 +2,7 @@ require "simple_args_dispatch/version"
 require 'simple_speaker'
 
 @speaker = SimpleSpeaker::Speaker.new
-LINE_SEPARATOR = '---------------------------------------------------------'
+new_line = '---------------------------------------------------------'
 
 module SimpleArgsDispatch
 
@@ -50,7 +50,7 @@ module SimpleArgsDispatch
     @speaker.tell_error(e, "Dispatcher.launch")
   end
 
-  def self.show_available(app_name, available, prepend = nil, join='|', separator = LINE_SEPARATOR, extra_info = '')
+  def self.show_available(app_name, available, prepend = nil, join='|', separator = new_line, extra_info = '')
     @speaker.speak_up("Usage: #{app_name} #{prepend + ' ' if prepend}#{available.map { |k, v| "#{k.to_s}#{'(optional)' if v == :opt}" }.join(join)}")
     if extra_info.to_s != ''
       @speaker.speak_up(separator)
