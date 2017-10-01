@@ -1,8 +1,6 @@
 require "simple_args_dispatch/version"
 require 'simple_speaker'
 
-new_line = '---------------------------------------------------------'
-
 module SimpleArgsDispatch
 
   # Actions will be in the following format:
@@ -47,6 +45,10 @@ module SimpleArgsDispatch
     params.empty? ? dameth.call : dameth.call(params)
   rescue => e
     speaker.tell_error(e, "Dispatcher.launch")
+  end
+
+  def self.new_line
+    '---------------------------------------------------------'
   end
 
   def self.show_available(app_name, available, prepend = nil, join='|', separator = new_line, extra_info = '')
