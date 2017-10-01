@@ -1,7 +1,6 @@
 require "simple_args_dispatch/version"
 require 'simple_speaker'
 
-@speaker = SimpleSpeaker::Speaker.new
 new_line = '---------------------------------------------------------'
 
 module SimpleArgsDispatch
@@ -28,7 +27,7 @@ module SimpleArgsDispatch
         return
       end
     end
-    @speaker.speak_up('Unknown command/option
+    speaker.speak_up('Unknown command/option
 
 ')
     self.show_available(app_name, actions, parent)
@@ -47,14 +46,18 @@ module SimpleArgsDispatch
     params = Hash[req_params.map { |k, _| [k, args[k.to_s] || template_args[k.to_s]] }].select { |_, v| !v.nil? }
     params.empty? ? dameth.call : dameth.call(params)
   rescue => e
-    @speaker.tell_error(e, "Dispatcher.launch")
+    speaker.tell_error(e, "Dispatcher.launch")
   end
 
   def self.show_available(app_name, available, prepend = nil, join='|', separator = new_line, extra_info = '')
-    @speaker.speak_up("Usage: #{app_name} #{prepend + ' ' if prepend}#{available.map { |k, v| "#{k.to_s}#{'(optional)' if v == :opt}" }.join(join)}")
+    speaker.speak_up("Usage: #{app_name} #{prepend + ' ' if prepend}#{available.map { |k, v| "#{k.to_s}#{'(optional)' if v == :opt}" }.join(join)}")
     if extra_info.to_s != ''
-      @speaker.speak_up(separator)
-      @speaker.speak_up(extra_info)
+      speaker.speak_up(separator)
+      speaker.speak_up(extra_info)
     end
+  end
+
+  def self.speaker
+    @speaker ||= SimpleSpeaker::Speaker.new
   end
 end
