@@ -1,6 +1,6 @@
 require "simple_args_dispatch/version"
 
-@speaker = Speaker.new
+@speaker = SimpleSpeaker.new
 LINE_SEPARATOR = '---------------------------------------------------------'
 
 module SimpleArgsDispatch
