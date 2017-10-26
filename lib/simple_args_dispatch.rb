@@ -39,7 +39,9 @@ module SimpleArgsDispatch
     req_params.each do |param|
       return self.show_available(app_name, Hash[req_params.map { |k| ["--#{k[0]}=<#{k[0]}>", k[1]] }], parent, ' ') if param[1] == :keyreq && args[param[0].to_s].nil? && template_args[param[0].to_s].nil?
     end
-    $email_msg = nil if args['no_email_notif'].to_i > 0 || template_args['no_email_notif'].to_i > 0
+    $env_flags.each do |k,_|
+      $env_flags[k] = (args[k] || template_args[k]).to_i
+    end
     dameth = model.method(action[1])
     params = Hash[req_params.map { |k, _| [k, args[k.to_s] || template_args[k.to_s]] }].select { |_, v| !v.nil? }
     params.empty? ? dameth.call : dameth.call(params)
