@@ -1,5 +1,6 @@
 require "simple_args_dispatch/version"
 require 'simple_speaker'
+require 'yaml'
 
 module SimpleArgsDispatch
 
@@ -13,14 +14,14 @@ module SimpleArgsDispatch
   #   }
   # end
 
-  def self.dispatch(app_name, args, actions, parent = nil)
+  def self.dispatch(app_name, args, actions, parent = nil, template_dir = '')
     arg = args.shift
     actions.each do |k, v|
       if arg == k.to_s
         if v.is_a?(Hash)
-          self.dispatch(app_name, args, v, "#{parent} #{arg}")
+          self.dispatch(app_name, args, v, "#{parent} #{arg}", template_dir)
         else
-          self.launch(app_name, v, args, "#{parent} #{arg}")
+          self.launch(app_name, v, args, "#{parent} #{arg}", template_dir)
         end
         return
       end
@@ -31,9 +32,9 @@ module SimpleArgsDispatch
     self.show_available(app_name, actions, parent)
   end
 
-  def self.launch(app_name, action, args, parent)
+  def self.launch(app_name, action, args, parent, template_dir)
     args = Hash[args.flat_map { |s| s.scan(/--?([^=\s]+)(?:=(.+))?/) }]
-    template_args = Utils.load_template(args['template_name'])
+    template_args = parse_template_args(load_template(args['template_name'], template_dir), template_dir)
     model = Object.const_get(action[0])
     req_params = model.method(action[1].to_sym).parameters.map { |a| a.reverse! }
     req_params.each do |param|
@@ -49,8 +50,29 @@ module SimpleArgsDispatch
     speaker.tell_error(e, "SimpleAgrsDispatch.launch")
   end
 
+  def self.load_template(template_name, template_dir)
+    if template_name.to_s != '' && File.exist?(template_dir + '/' + "#{template_name}.yml")
+      return YAML.load_file(template_dir + '/' + "#{template_name}.yml")
+    end
+    {}
+  rescue
+    {}
+  end
+
   def self.new_line
     '---------------------------------------------------------'
+  end
+
+  def self.parse_template_args(template, template_dir)
+    template.keys.each do |k|
+      if k.to_s == 'load_template' && template[k].is_a?(String)
+        template.merge!(load_template(template[k].to_s, template_dir))
+        template.delete(k)
+      elsif template[k].is_a?(Hash)
+        template[k] = parse_template_args(template[k], template_dir)
+      end
+    end
+    template
   end
 
   def self.show_available(app_name, available, prepend = nil, join='|', separator = new_line, extra_info = '')
