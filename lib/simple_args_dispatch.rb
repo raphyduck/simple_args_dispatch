@@ -44,7 +44,11 @@ module SimpleArgsDispatch
       $env_flags[k] = (args[k] || template_args[k]).to_i
     end
     dameth = model.method(action[1])
-    params = Hash[req_params.map { |k, _| [k, args[k.to_s] || template_args[k.to_s]] }].select { |_, v| !v.nil? }
+    params = Hash[req_params.map do |k, _|
+      val = args[k.to_s] || template_args[k.to_s]
+      val = eval(val) if val.to_s.match(/^[{\[].*[}\]]$/)
+      [k, val]
+    end].select { |_, v| !v.nil? }
     params.empty? ? dameth.call : dameth.call(params)
   rescue => e
     speaker.tell_error(e, "SimpleAgrsDispatch.launch")
