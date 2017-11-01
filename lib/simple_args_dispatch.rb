@@ -49,6 +49,7 @@ module SimpleArgsDispatch
       val = eval(val) if val.to_s.match(/^[{\[].*[}\]]$/)
       [k, val]
     end].select { |_, v| !v.nil? }
+    speaker.speak_up("Running with arguments: " + params.map{|a, v| "#{a}='#{v}'"}.join(' ')) if $env_flags['debug'] > 0
     params.empty? ? dameth.call : dameth.call(params)
   rescue => e
     speaker.tell_error(e, "SimpleAgrsDispatch.launch")
