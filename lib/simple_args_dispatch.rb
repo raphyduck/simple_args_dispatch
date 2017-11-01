@@ -46,7 +46,7 @@ module SimpleArgsDispatch
     dameth = model.method(action[1])
     params = Hash[req_params.map do |k, _|
       val = args[k.to_s] || template_args[k.to_s]
-      val = eval(val) if val.to_s.match(/^[{\[].*[}\]]$/)
+      val = eval(val) if val.is_a?(String) && val.match(/^[{\[].*[}\]]$/)
       [k, val]
     end].select { |_, v| !v.nil? }
     speaker.speak_up("Running with arguments: " + params.map{|a, v| "#{a.to_s}='#{v.to_s}'"}.join(' ')) if $env_flags['debug'] > 0
