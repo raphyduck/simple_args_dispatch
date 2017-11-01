@@ -73,7 +73,7 @@ module SimpleArgsDispatch
       if k.to_s == 'load_template'
         template[k] = [template[k]] if template[k].is_a?(String)
         template[k].each do |t|
-          template.merge!(load_template(t.to_s, template_dir))
+          template.merge!(parse_template_args(load_template(t.to_s, template_dir), template_dir))
         end
         template.delete(k)
       elsif template[k].is_a?(Hash)
