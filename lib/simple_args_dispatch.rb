@@ -70,8 +70,11 @@ module SimpleArgsDispatch
 
   def self.parse_template_args(template, template_dir)
     template.keys.each do |k|
-      if k.to_s == 'load_template' && template[k].is_a?(String)
-        template.merge!(load_template(template[k].to_s, template_dir))
+      if k.to_s == 'load_template'
+        template[k] = [template[k]] if template[k].is_a?(String)
+        template[k].each do |t|
+          template.merge!(load_template(t.to_s, template_dir))
+        end
         template.delete(k)
       elsif template[k].is_a?(Hash)
         template[k] = parse_template_args(template[k], template_dir)
