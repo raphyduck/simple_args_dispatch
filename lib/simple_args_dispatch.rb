@@ -41,7 +41,7 @@ module SimpleArgsDispatch
       return self.show_available(app_name, Hash[req_params.map { |k| ["--#{k[0]}=<#{k[0]}>", k[1]] }], parent, ' ') if param[1] == :keyreq && args[param[0].to_s].nil? && template_args[param[0].to_s].nil?
     end
     $env_flags.each do |k,_|
-      $env_flags[k] = (args[k] || template_args[k]).to_i
+      Thread.current[k.to_sym] = (args[k] || template_args[k]).to_i
     end
     dameth = model.method(action[1])
     params = Hash[req_params.map do |k, _|
