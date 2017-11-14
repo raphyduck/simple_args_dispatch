@@ -14,7 +14,11 @@ module SimpleArgsDispatch
   #   }
   # end
 
-  def self.dispatch(app_name, args, actions, parent = nil, template_dir = '')
+  def initialize(speaker = nil)
+    @speaker = speaker
+  end
+
+  def dispatch(app_name, args, actions, parent = nil, template_dir = '')
     arg = args.shift
     actions.each do |k, v|
       if arg == k.to_s
@@ -26,13 +30,13 @@ module SimpleArgsDispatch
         return
       end
     end
-    speaker.speak_up('Unknown command/option
+    @speaker.speak_up('Unknown command/option
 
 ')
     self.show_available(app_name, actions, parent)
   end
 
-  def self.launch(app_name, action, args, parent, template_dir)
+  def launch(app_name, action, args, parent, template_dir)
     args = Hash[args.flat_map { |s| s.scan(/--?([^=\s]+)(?:=(.+))?/) }]
     template_args = parse_template_args(load_template(args['template_name'], template_dir), template_dir)
     model = Object.const_get(action[0])
@@ -49,13 +53,13 @@ module SimpleArgsDispatch
       val = eval(val) if val.is_a?(String) && val.match(/^[{\[].*[}\]]$/)
       [k, val]
     end].select { |_, v| !v.nil? }
-    speaker.speak_up("Running with arguments: " + params.map{|a, v| "#{a.to_s}='#{v.to_s}'"}.join(' ')) if $env_flags['debug'] > 0
+    @speaker.speak_up("Running with arguments: " + params.map{|a, v| "#{a.to_s}='#{v.to_s}'"}.join(' ')) if $env_flags['debug'] > 0
     params.empty? ? dameth.call : dameth.call(params)
   rescue => e
-    speaker.tell_error(e, "SimpleAgrsDispatch.launch")
+    @speaker.tell_error(e, "SimpleAgrsDispatch.launch")
   end
 
-  def self.load_template(template_name, template_dir)
+  def load_template(template_name, template_dir)
     if template_name.to_s != '' && File.exist?(template_dir + '/' + "#{template_name}.yml")
       return YAML.load_file(template_dir + '/' + "#{template_name}.yml")
     end
@@ -64,11 +68,11 @@ module SimpleArgsDispatch
     {}
   end
 
-  def self.new_line
+  def new_line
     '---------------------------------------------------------'
   end
 
-  def self.parse_template_args(template, template_dir)
+  def parse_template_args(template, template_dir)
     template.keys.each do |k|
       if k.to_s == 'load_template'
         template[k] = [template[k]] if template[k].is_a?(String)
@@ -83,15 +87,11 @@ module SimpleArgsDispatch
     template
   end
 
-  def self.show_available(app_name, available, prepend = nil, join='|', separator = new_line, extra_info = '')
-    speaker.speak_up("Usage: #{app_name} #{prepend + ' ' if prepend}#{available.map { |k, v| "#{k.to_s}#{'(optional)' if v == :opt}" }.join(join)}")
+  def show_available(app_name, available, prepend = nil, join='|', separator = new_line, extra_info = '')
+    @speaker.speak_up("Usage: #{app_name} #{prepend + ' ' if prepend}#{available.map { |k, v| "#{k.to_s}#{'(optional)' if v == :opt}" }.join(join)}")
     if extra_info.to_s != ''
-      speaker.speak_up(separator)
-      speaker.speak_up(extra_info)
+      @speaker.speak_up(separator)
+      @speaker.speak_up(extra_info)
     end
-  end
-
-  def self.speaker
-    @speaker ||= SimpleSpeaker::Speaker.new
   end
 end
