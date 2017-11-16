@@ -15,8 +15,9 @@ module SimpleArgsDispatch
     #   }
     # end
 
-    def initialize(speaker = nil)
+    def initialize(speaker = nil, env_variables = [])
       @speaker = speaker
+      @env_variables = env_variables
     end
 
     def dispatch(app_name, args, actions, parent = nil, template_dir = '')
@@ -45,8 +46,8 @@ module SimpleArgsDispatch
       req_params.each do |param|
         return self.show_available(app_name, Hash[req_params.map { |k| ["--#{k[0]}=<#{k[0]}>", k[1]] }], parent, ' ') if param[1] == :keyreq && args[param[0].to_s].nil? && template_args[param[0].to_s].nil?
       end
-      $env_flags.each do |k, _|
-        Thread.current[k.to_sym] = (args[k] || template_args[k]).to_i
+      @env_variables.each do |k|
+        Thread.current[k.to_sym] = (args[k] || template_args[k]).to_i if args[k] || template_args[k]
       end
       dameth = model.method(action[1])
       params = Hash[req_params.map do |k, _|
@@ -54,7 +55,7 @@ module SimpleArgsDispatch
         val = YAML.load(val.gsub('=>', ': ')) if val.is_a?(String) && val.match(/^[{\[].*[}\]]$/)
         [k, val]
       end].select { |_, v| !v.nil? }
-      @speaker.speak_up("Running with arguments: " + params.map { |a, v| "#{a.to_s}='#{v.to_s}'" }.join(' ')) if $env_flags['debug'] > 0 || Thread.current[:debug] > 0
+      @speaker.speak_up("Running with arguments: " + params.map { |a, v| "#{a.to_s}='#{v.to_s}'" }.join(' ')) if Thread.current[:debug] > 0
       params.empty? ? dameth.call : dameth.call(params)
     rescue => e
       @speaker.tell_error(e, "SimpleAgrsDispatch.launch")
