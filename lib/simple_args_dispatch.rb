@@ -55,7 +55,7 @@ module SimpleArgsDispatch
         val = YAML.load(val.gsub('=>', ': ')) if val.is_a?(String) && val.match(/^[{\[].*[}\]]$/)
         [k, val]
       end].select { |_, v| !v.nil? }
-      @speaker.speak_up("Running with arguments: " + params.map { |a, v| "#{a.to_s}='#{v.to_s}'" }.join(' ')) if Thread.current[:debug] > 0
+      @speaker.speak_up("Running with arguments: " + params.map { |a, v| "#{a.to_s}='#{v.to_s}'" }.join(' ')) if Thread.current[:debug] && Thread.current[:debug] > 0
       params.empty? ? dameth.call : dameth.call(params)
     rescue => e
       @speaker.tell_error(e, "SimpleAgrsDispatch.launch")
