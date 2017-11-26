@@ -87,7 +87,7 @@ module SimpleArgsDispatch
 
     def set_env_variables(env_flags, args, template_args = {})
       env_flags.each do |k, _|
-        Thread.current[k.to_sym] = (args[k] || template_args[k]).to_i if args[k] || template_args[k]
+        Thread.current[k] = (args[k.to_s] || template_args[k.to_s]).to_i if args[k.to_s] || template_args[k.to_s]
       end
     end
 
