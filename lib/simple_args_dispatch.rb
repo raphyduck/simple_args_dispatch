@@ -15,7 +15,7 @@ module SimpleArgsDispatch
     #   }
     # end
 
-    def initialize(speaker = nil, env_variables = [])
+    def initialize(speaker = nil, env_variables = {})
       @speaker = speaker
       @env_variables = env_variables
     end
@@ -46,9 +46,7 @@ module SimpleArgsDispatch
       req_params.each do |param|
         return self.show_available(app_name, Hash[req_params.map { |k| ["--#{k[0]}=<#{k[0]}>", k[1]] }], parent, ' ') if param[1] == :keyreq && args[param[0].to_s].nil? && template_args[param[0].to_s].nil?
       end
-      @env_variables.each do |k|
-        Thread.current[k.to_sym] = (args[k] || template_args[k]).to_i if args[k] || template_args[k]
-      end
+      set_env_variables(@env_variables, args, template_args)
       dameth = model.method(action[1])
       params = Hash[req_params.map do |k, _|
         val = args[k.to_s] || template_args[k.to_s]
@@ -85,6 +83,12 @@ module SimpleArgsDispatch
         end
       end
       template
+    end
+
+    def set_env_variables(env_flags, args, template_args = {})
+      env_flags.each do |k, _|
+        Thread.current[k.to_sym] = (args[k] || template_args[k]).to_i if args[k] || template_args[k]
+      end
     end
 
     def show_available(app_name, available, prepend = nil, join='|', separator = new_line, extra_info = '')
