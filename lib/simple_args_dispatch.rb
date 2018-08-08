@@ -44,7 +44,7 @@ module SimpleArgsDispatch
       model = Object.const_get(action[0])
       req_params = model.method(action[1].to_sym).parameters.map { |a| a.reverse! }
       req_params.each do |param|
-        return self.show_available(app_name, Hash[req_params.map { |k| ["--#{k[0]}=<#{k[0]}>", k[1]] }], parent, ' ') if param[1] == :keyreq && args[param[0].to_s].nil? && template_args[param[0].to_s].nil?
+        return self.show_available(app_name, Hash[req_params.map { |k| ["--#{k[0]}=<#{k[0]}>", k[1]] }], parent, ' ', new_line, "Missing parameter: '#{param[0]}'") if param[1] == :keyreq && args[param[0].to_s].nil? && template_args[param[0].to_s].nil?
       end
       set_env_variables(@env_variables, args, template_args)
       dameth = model.method(action[1])
@@ -94,7 +94,7 @@ module SimpleArgsDispatch
     end
 
     def show_available(app_name, available, prepend = nil, join='|', separator = new_line, extra_info = '')
-      @speaker.speak_up("Usage: #{app_name} #{prepend + ' ' if prepend}#{available.map { |k, v| "#{k.to_s}#{'(optional)' if v == :opt}" }.join(join)}")
+      @speaker.speak_up("Usage: #{app_name} #{prepend + ' ' if prepend}#{available.map { |k, v| "#{'[' if v == :key}#{k.to_s}#{']' if v == :key}" }.join(join)}")
       if extra_info.to_s != ''
         @speaker.speak_up(separator)
         @speaker.speak_up(extra_info)
