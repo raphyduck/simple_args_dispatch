@@ -22,7 +22,7 @@ module SimpleArgsDispatch
 
     def dispatch(app_name, args, actions, parent = nil, template_dir = '')
       arg = args.shift
-      actions.each do |k, v|
+      actions[0..1].each do |k, v|
         if arg == k.to_s
           if v.is_a?(Hash)
             self.dispatch(app_name, args, v, "#{parent} #{arg}", template_dir)
@@ -94,7 +94,7 @@ module SimpleArgsDispatch
     end
 
     def show_available(app_name, available, prepend = nil, join='|', separator = new_line, extra_info = '')
-      @speaker.speak_up("Usage: #{app_name} #{prepend + ' ' if prepend}#{available.map { |k, v| "#{'[' if v == :key}#{k.to_s}#{']' if v == :key}" }.join(join)}")
+      @speaker.speak_up("Usage: #{app_name} #{prepend + ' ' if prepend}#{available[0..1].map { |k, v| "#{'[' if v == :key}#{k.to_s}#{']' if v == :key}" }.join(join)}")
       if extra_info.to_s != ''
         @speaker.speak_up(separator)
         @speaker.speak_up(extra_info)
